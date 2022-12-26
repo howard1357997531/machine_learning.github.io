@@ -1,0 +1,71 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a5</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">尋找輪廓</h1>
+            <hr>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12 border border-secondary">
+                    <p>import cv2</p>
+                    <p>image = cv2.imread('license1.jpg')</p>
+                    <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                    <p class="text-primary"># 二質化(降低雜訊)</p>
+                    <p>_, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)</p>
+                    <p>cv2.imshow('binary', binary)</p>
+                    <p class="text-primary"># cv2.findContours(image, mode, method)</p>
+                    <p class="text-primary"># mode( 輪廓檢索模式)</p>
+                    <p class="text-primary"># CV_RETR_EXTERNAL: 只取最外層的輪廓</p>
+                    <p class="text-primary"># CV_RETR_LIST: 取得所有輪廓，不建立階層(hierarchy)</p>
+                    <p class="text-primary"># CV_RETR_CCOMP: 取得所有輪廓，但只儲存成兩層的階層</p>
+                    <p class="text-primary"># CV_RETR_TREE: 取得所有輪廓，以全階層的方式儲存</p>
+                    <p class="text-primary"># method( 輪廓近似方法)</p>
+                    <p class="text-primary"># CV_CHAIN_APPROX_NONE: 儲存所有輪廓點</p>
+                    <p class="text-primary"># CV_CHAIN_APPROX_SIMPLE: 只留下頭尾點或對角頂點</p>
+                    <p>contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</p>
+                    <p class="text-primary"># cv2.drawContours(image, contours, contourIdx, color)</p>
+                    <p class="text-primary"># contourIdx = -1 表示畫出所有輪廓點</p>
+                    <p class="text-primary"># 先轉為二值化影像能降低雜訊</p>
+                    <p>cv2.drawContours(image, contours, -1, (0, 255, 0), 3)</p>
+                    <p>cv2.imshow('contours', image)</p>
+                    <p>cv2.waitKey(0)</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/e1.png' %}" width="400", height="200">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">binary:</p>
+                    <img src="{% static 'image/e2.png' %}" width="400", height="200">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">輸出輪廓:</p>
+                    <img src="{% static 'image/e3.png' %}" width="400", height="200">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

@@ -1,0 +1,74 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a3</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">邊緣偵測</h1>
+            <hr>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12 border border-secondary">
+                    <h3 class="text-danger mt-2">建立拉桿來即時更新門檻值</h3>
+                    <p class="text-primary"># Edge detection 是為了找出灰階有劇烈變化的邊界</p>
+                    <p>import cv2</p>
+                    <p>image = cv2.imread("lena512rgb.png")</p>
+                    <p>cv2.namedWindow('canny')</p>
+                    <p>def nothing(x):</p>
+                    <p class="ms-4">pass</p>
+                    <p class="text-primary"># 建立拉桿與顯示即時結果</p>
+                    <p>cv2.createTrackbar('threshold', 'canny', 0 , 100, nothing)</p>
+                    <p>cv2.createTrackbar('radio', 'canny', 0 , 5, nothing)</p>
+                    <p>while True:</p>
+                    <p class="ms-4">threshold = cv2.getTrackbarPos('threshold', 'canny')</p>
+                    <p class="ms-4">radio = cv2.getTrackbarPos('radio', 'canny')</p>
+                    <p class="text-primary ms-4"># 轉灰階</p>
+                    <p class="ms-4">gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                    <p class="text-primary ms-4"># 做高斯模糊(去除雜訊)</p>
+                    <p class="ms-4">blur = cv2.GaussianBlur(gray, (5, 5), 0)</p>
+                    <p class="text-primary ms-4"># lower threshold = threshold</p>
+                    <p class="text-primary ms-4"># upper threshold = threshold * radio</p>
+                    <p class="text-primary ms-4"># 通常上下門檻值的比例在 2:1 到 3:1 之間</p>
+                    <p class="ms-4">canny = cv2.Canny(blur, threshold, threshold * radio)</p>
+                    <p class="text-primary ms-4"># 二值化處理(變黑白)</p>
+                    <p class="ms-4">cv2.imshow('canny', canny)</p>
+                    <p class="ms-4">if cv2.waitKey(1) & 0xFF == ord("q"):</p>
+                    <p class="ms-4"><span class="ms-4">break</span></p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/c1.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">建立拉桿與測試: (上門檻值:37*3，下門檻值:37)</p>
+                    <img src="{% static 'image/c2.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">輸出圖片:</p>
+                    <img src="{% static 'image/c3.png' %}" width="400", height="400">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

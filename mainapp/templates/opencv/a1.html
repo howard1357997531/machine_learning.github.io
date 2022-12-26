@@ -1,0 +1,178 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a1</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">圖片寫字、畫圖形、位移、旋轉、resize</h1>
+            <hr>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <h3 class="text-center mb-3"><span class="badge rounded-pill text-bg-dark">圖片寫字和畫圖形</span></h3>
+                <div class="col-md-8 border border-secondary">
+                    <h3 class="text-danger mt-2">先建立一個全灰圖片</h3>
+                    <p class="text-primary"># 也可以使用cv2.imread('xxx.jpg')修改想改的圖片</p>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p class="text-primary"># 彩色圖片為三維: (高度, 寬度, 色彩通道)</p>
+                    <p>image = np.zeros((400, 800, 3), dtype=np.uint8)</p>
+                    <p>image.fill(200)</p>
+                </div>
+                <div class="col-md-4 ">
+                    <img src="{% static 'image/a1.png' %}" width="400", height="200">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-8 border border-secondary">
+                    <h3 class="text-danger mt-2">在圖片中寫入文字</h3>
+                    <p class="text-primary"># cv2.putText(影像, 文字, 座標, 字型, 大小, 顏色, 線條寬度, 線條種類)</p>
+                    <p class="text-primary"># 座標(距離左邊y軸的距離, 距離上方x軸的距離)</p>
+                    <p>cv2.putText(image, 'rectangle', (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)</p>
+                    <p>cv2.putText(image, 'circle', (100, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)</p>
+                    <p>cv2.putText(image, 'ellipse', (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)</p>
+                    <p>cv2.putText(image, 'polylines', (500, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)</p>
+                </div>
+                <div class="col-md-4">
+                    <img src="{% static 'image/a2.png' %}" width="400", height="200">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-8 border border-secondary">
+                    <h3 class="text-danger mt-2">用圖形把圖片中的文字框住</h3>
+                    <p class="text-primary"># 方框: cv2.rectangle(影像, 頂點座標, 對向頂點座標, 顏色, 線條寬度)</p>
+                    <p class="text-primary"># 圓形: cv2.circle(影像, 圓心座標, 半徑, 顏色, 線條寬度)</p>
+                    <p class="text-primary"># 橢圓形: cv2.ellipse(影像, 中心座標, 軸長, 旋轉角度, 起始角度, 結束角度, 顏色, 線條寬度)</p>
+                    <p class="text-primary"># 這裡的線條寬度參數若設定為正的值，則代表正常的線條寬度</p>
+                    <p class="text-primary"># 而若設定為-1，則代表畫實心的方框、圓形、橢圓形、折線。</p>
+                    <p>cv2.rectangle(image, (70, 60), (270, 120), (0, 255, 255), 2)</p>
+                    <p>cv2.circle(image, (140, 295), 60, (255, 0, 0), 2)</p>
+                    <p>cv2.ellipse(image, (540, 100), (50, 100), 45, 0, 360, (255, 255, 0), 2)</p>
+                    <p class="text-primary"># 折線: cv2.polylines(影像, 頂點座標, 封閉型, 顏色, 線條寬度)</p>
+                    <p class="text-primary"># 設定多邊形頂點座標</p>
+                    <p>ply = np.array([[480, 260], [480, 315], [640, 330], [680, 270]], np.int32)</p>
+                    <p class="text-primary"># 其中頂點座標就是線段之間的頂點座標，這個參數必須要是一個形狀為(頂點數量, 1, 2)的陣列</p>
+                    <p>ply = ply.reshape((-1, 1, 2))</p>
+                    <p class="text-primary"># 封閉型參數是一個布林值，若設定為 True 的話，它就會自動把最後一個點座標跟第一個點座標連起來，反之就是不連這一條線段</p>
+                    <p>cv2.polylines(image, [ply], True, (255, 0, 255), 2)</p>
+                    <p>cv2.imshow('image', image)</p>
+                    <p>cv2.waitKey(0)</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+                <div class="col-md-4 ">
+                    <img src="{% static 'image/a3.png' %}" class="" width="400", height="200">
+                </div>
+            </div>
+        </div>
+
+        <!-- 圖片平移 -->
+        <div class="row">
+            <h3 class="text-center my-3"><span class="badge rounded-pill text-bg-dark">圖片平移</span></h3>
+            <div class="col-md-12 border border-secondary">
+                <p>import cv2</p>
+                <p>import numpy as np</p>
+                <p>image = cv2.imread("lena256rgb.jpg")</p>
+                <p>cols, rows  = image.shape[:2]</p>
+                <p>print(image.shape)<span class="text-primary ms-3"># (256, 256, 3) (高度,寬度,色彩通道)</span></p>
+                <p class="text-primary"># x 向右平移 50，y 向下平移 50</p>
+                <p>M = np.float32([[1, 0, 50], [0, 1, 50]])</p>
+                <p class="text-primary"># cv2.warpAffine(src, M, dsize)  #(影像,變化矩陣,變化後的大小(寬度,高度))</p>
+                <p>translation = cv2.warpAffine(image, M, (rows, cols))</p>
+                <p>cv2.imshow('image', image)</p>
+                <p>cv2.imshow('Translation', translation)</p>
+                <p>cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a4.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">位移後(向右平移 50，y 向下平移 50):</p>
+                <img src="{% static 'image/a5.png' %}" width="400", height="400">
+            </div>
+        </div>
+
+        <!-- 圖片旋轉 -->
+        <div class="row">
+            <h3 class="text-center my-3"><span class="badge rounded-pill text-bg-dark">圖片旋轉</span></h3>
+            <div class="col-md-12 border border-secondary">
+                <p>import cv2</p>
+                <p>import numpy as np</p>
+                <p>image = cv2.imread("lena256rgb.jpg")</p>
+                <p>cols, rows  = image.shape[:2]</p>
+                <p>print(image.shape)<span class="text-primary ms-3"># (256, 256, 3) (高度,寬度,色彩通道)</span></p>
+                <p class="text-primary"># cv2.getRotationMatrix2D(中心點, 旋轉角度, 縮放比)</p>
+                <p>M = cv2.getRotationMatrix2D((cols/2, rows/2), 45, 1)</p>
+                <p class="text-primary"># cv2.warpAffine(src, M, dsize)  #(影像,變化矩陣,變化後的大小)</p>
+                <p>rotation = cv2.warpAffine(image, M, (rows, cols))</p>
+                <p>cv2.imshow('image', image)</p>
+                <p>cv2.imshow('Translation', translation)</p>
+                <p>cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a4.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">旋轉後:</p>
+                <img src="{% static 'image/a6.png' %}" width="400", height="400">
+            </div>
+        </div>
+
+        <!-- 圖片resize -->
+        <div class="row">
+            <h3 class="text-center my-3"><span class="badge rounded-pill text-bg-dark">圖片resize</span></h3>
+            <div class="col-md-12 border border-secondary">
+                <p>import cv2</p>
+                <p>import numpy as np</p>
+                <p>image = cv2.imread("lena256rgb.jpg")</p>
+                <p>cols, rows  = image.shape[:2]</p>
+                <p class="text-primary">#  cv2.resize(原圖, resize後(高度, 寬度), 內插法)</p>
+                <p class="text-primary">#  內插法(interpolation)種類:</p>
+                <p class="text-primary">#  INTER_NEAREST: 鄰近內插</p>
+                <p class="text-primary">#  INTER_LINEAR: 線性內插( 預設)</p>
+                <p class="text-primary">#  INTER_AREA: 像素關係重採樣法( 縮小影像適用)</p>
+                <p class="text-primary">#  INTER_CUBIC: 三次內插( 放大影像適用)</p>
+                <p class="text-primary">#  INTER_LANCZOS4: lanczos4 內插</p>
+                <p>resize = cv2.resize(image, (2*rows, 2*cols), interpolation=cv2.INTER_CUBIC)</p>
+                <p>cv2.imshow('image', image)</p>
+                <p>cv2.imshow('Resize', resize)</p>
+                <p>cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a4.png' %}" width="200", height="200">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">resize後(長、寬變2倍):</p>
+                <img src="{% static 'image/a7.png' %}" width="400", height="400">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

@@ -1,0 +1,133 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a4</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">HoughLines & HoughLinesP</h1>
+            <hr>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">HoughLines</span></h3>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">HoughLines(為一條無窮長的直線)</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p>image = cv2.imread("hough_demo.jpg")</p>
+                    <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                    <p>print('gray.shape:',gray.shape)<span class="text-primary ms-3"># gray.shape: (631, 835)</span></p>
+                    <p>h, w = gray.shape</p>
+                    <p>blur = cv2.GaussianBlur(gray, (5, 5), 0)</p>
+                    <p>edges = cv2.Canny(blur, 50, 150, 3)</p>
+                    <p>cv2.imshow('binary', binary)</p>
+                    <p class="text-primary"># cv2.HoughLines(image, rho, theta, threshold[, lines[, srn[, stn]]])</p>
+                    <p class="text-primary"># image: 輸入影像 ( 8 位元單通道二值化圖 )</p>
+                    <p class="text-primary"># rho: 距離解析度 ( 極坐標中極徑 r 的最小單位 )</p>
+                    <p class="text-primary"># theta: 角度解析度 ( 極坐標中極角 Ɵ的最小單位 )</p>
+                    <p class="text-danger">重點# threshold: 門檻值 ( 超過此值的線才會存在 lines 裡 )</p>
+                    <p class="text-primary"># lines: 輸出結果 ( 每條線都包含 r 和 θ)</p>
+                    <p class="text-primary"># srn: 可有可無的距離除數</p>
+                    <p class="text-primary"># stn: 可有可無的角度除數</p>
+                    <p>try:</p>
+                    <p class="ms-4">lines = cv2.HoughLines(edges, 1, np.pi/180, 1)[0]</p>
+                    <p class="text-primary ms-4"># lines為edges裡的第一條線的 [[rho( 距離解析度 ) ,theta( 角度解析度 )]]</p>
+                    <p class="ms-4">print(lines)<span class="text-primary ms-3"># lines 為一個二維 [[575. &nbsp; 1.5707964]]</span></p>
+                    <p class="ms-4">for (rho, theta) in lines:</p>
+                    <p class="ms-4"><span class="ms-4">x0 = np.cos(theta)*rho</span></p>
+                    <p class="ms-4"><span class="ms-4">y0 = np.sin(theta)*rho</span></p>
+                    <p class="ms-4"><span class="ms-4">pt1 = (int(x0 + (h+w)*(-np.sin(theta))), int(y0 + (h+w)*np.cos(theta)))</span></p>
+                    <p class="ms-4"><span class="ms-4">pt2 = (int(x0 - (h+w)*(-np.sin(theta))), int(y0 - (h+w)*np.cos(theta)))o</span></p>
+                    <p class="ms-4 text-primary"><span class="ms-4"># 畫線</span></p>
+                    <p class="ms-4"><span class="ms-4">cv2.line(image, pt1, pt2, (0, 0, 255), 3)</span></p>
+                    <p class="ms-4">cv2.imshow("HoughLines", image)</p>
+                    <p class="ms-4">cv2.waitKey(0)</p>
+                    <p>except TypeError:</p>
+                    <p class="ms-4">print("The Houghlines function returns None, try decrease the threshold!")</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/d1.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">直線(為edges裡的第一條無窮線):</p>
+                    <img src="{% static 'image/d2.png' %}" width="400", height="400">
+                </div>
+            </div>
+
+            <!-- HoughLinesP -->
+            <div class="row mt-3">
+                <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">HoughLinesP</span></h3>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">HoughLinesP(找出線段，不是無窮長的直線)</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p>image = cv2.imread("hough_demo.jpg")</p>
+                    <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                    <p>print('gray.shape:',gray.shape)<span class="text-primary ms-3"># gray.shape: (631, 835)</span></p>
+                    <p>h, w = gray.shape</p>
+                    <p>blur = cv2.GaussianBlur(gray, (5, 5), 0)</p>
+                    <p>edges = cv2.Canny(blur, 50, 150, 3)</p>
+                    <p>cv2.imshow('binary', binary)</p>
+                    <p class="text-primary"># cv2.HoughLinesP(image, rho, theta, threshold[, lines[, minLineLength[, maxLineGap]]])</p>
+                    <p class="text-primary"># image: 輸入影像 ( 8 位元單通道二值化圖 )</p>
+                    <p class="text-primary"># rho: 距離解析度 ( 極坐標中極徑 r 的最小單位 )</p>
+                    <p class="text-primary"># theta: 角度解析度 ( 極坐標中極角 Ɵ的最小單位 )</p>
+                    <p class="text-danger">重點# threshold: 門檻值 ( 超過此值的線才會存在 lines 裡 )</p>
+                    <p class="text-primary"># lines:輸出結果(每條線都包含x1, y1, x2, y2線段頂點)</p>
+                    <p class="text-danger">重點# minLineLength:線段最短距離(超過此值的線才會存在lines裡)</p>
+                    <p class="text-primary"># maxLineGap:最大間隔</p>
+                    <p>try:</p>
+                    <p class="ms-4 text-primary"># 設定門檻值大於50，線段最短距離大於100</p>
+                    <p class="ms-4">plines = cv2.HoughLinesP(edges, 1, np.pi/180, 50, None, 100, 5)</p>
+                    <p class="ms-4">print(plines)<span class="text-primary ms-3"># plines為edges裡的每一條線，是一個三維</span></p> 
+                    <p class="ms-4">print(len(plines))<span class="text-primary ms-3"># 28(找到28條段)</span></p> 
+                    <p class="ms-4">print(plines[0])<span class="text-primary ms-3"># plines裡面的第一條線，為一個二維 [[36 &nbsp; 155 &nbsp; 759 &nbsp; 155]]</span></p>
+                    <p class="ms-4 text-primary"># [[36 &nbsp; 155 &nbsp; 759 &nbsp; 155]] 為 [左端x座標,左端y座標,右端x座標,右端y座標]</p>
+                    <p class="ms-4">for pline in plines:</p>
+                    <p class="ms-4"><span class="ms-4">for pl in pline:</span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4">cv2.line(image, (pl[0], pl[1]), (pl[2], pl[3]), (255, 0, 0), 3)</span></span></p>
+                    <p class="ms-4"><span class="ms-4">cv2.imshow("HoughLinesP", image)</span></p>
+                    <p class="ms-4"><span class="ms-4">cv2.waitKey(0)</span></p>
+                    <p>except TypeError:</p>
+                    <p class="ms-4">print("The Houghlines function returns None, try decrease the threshold!")</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/d1.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">線段(為edges裡的第一條線段):</p>
+                    <img src="{% static 'image/d3.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">畫出每個線段，共28條(按Enter會一直畫):</p>
+                    <img src="{% static 'image/d4.png' %}" width="400", height="400">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

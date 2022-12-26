@@ -1,0 +1,65 @@
+{% extends 'layout/base.html' %}
+{% block title %}<title>Index</title>{% endblock title %}
+{% block css %}
+<style>
+    td {
+        padding: 30px;
+    }
+    a {
+        text-decoration: none;
+    }
+    .tableA td{
+        width: 20%;
+    }
+    .table1 td{
+        width: 50%;
+    }
+    .table2 td{
+        width: 25%;
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h2 class="text-center mt-5 mb-4">OpenCV 色彩空間與基本影像處理</h2>
+            <hr>
+            <table class="table tableA text-center">
+                <tr>
+                    <td class="p-3"><a href="{% url 'a1' %}">圖片寫字、畫圖形、位移、旋轉、resize</a></td>
+                    <td class="p-3"><a href="{% url 'a2' %}">修改圖片的顏色、透明度、亮度</a></td>
+                    <td class="p-3"><a href="{% url 'a3' %}">邊緣偵測</a></td>
+                    <td class="p-3"><a href="{% url 'a4' %}">HoughLines & HoughLinesP</a></td>
+                    <td class="p-3"><a href="{% url 'a5' %}">尋找輪廓</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    /*
+    <h2 class="text-center mt-5 mb-4">資料分析</h2>
+            <hr>
+            <table class="table table1 text-center">
+                <tr>
+                    <td><a href="" class="text-danger">台灣疫情報告</a></td>
+                    <td><a href="" class="text-danger">學生成績系統</a></td>
+                </tr>
+            </table>
+
+            <h2 class="text-center mt-5 mb-4">小遊戲</h2>
+            <hr>
+            <table class="table table1 text-center">
+                <tr>
+                    <td><a href="" class="text-danger">手機號碼占圤</a></td>
+                    <td><a href="" class="text-danger">樂透</a></td>
+                </tr>
+            </table>
+    */
+</script>
+{% endblock scripts %}

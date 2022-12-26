@@ -1,0 +1,187 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a2</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">修改圖片的顏色、透明度、亮度</h1>
+            <hr>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">改變圖片中小小兵的顏色(比如改成紅色)</span></h3>
+                <div class="col-md-12 border border-secondary">
+                    <h3 class="text-danger mt-2">建立拉桿與顯示需要的HSV範圍</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p>image = cv2.imread("balloon.jpg")</p>
+                    <p class="text-primary"># 建立一個名稱為 'hsv_demo' 的可拉伸的視窗</p>
+                    <p>cv2.namedWindow('hsv_demo', cv2.WINDOW_NORMAL)</p>
+                    <p class="text-primary"># cv2.createTrackbar()最後一個參數為: 每次滑動搖桿都會觸發的函式(在這邊設定為pass，不做任何事)</p>
+                    <p>def nothing(x):</p>
+                    <p class="ms-4">pass</p>
+                    <p class="text-primary"># 建立拉桿與顯示即時結果</p>
+                    <p>cv2.createTrackbar('hl', 'hsv_demo', 0, 179, nothing)</p>
+                    <p>cv2.createTrackbar('hu', 'hsv_demo', 179, 179, nothing)</p>
+                    <p>cv2.createTrackbar('sl', 'hsv_demo', 0, 255, nothing)</p>
+                    <p>cv2.createTrackbar('su', 'hsv_demo', 255, 255, nothing)</p>
+                    <p>cv2.createTrackbar('vl', 'hsv_demo', 0, 255, nothing)</p>
+                    <p>cv2.createTrackbar('vu', 'hsv_demo', 255, 255, nothing)</p>
+                    <p>while True:</p>
+                    <p class="ms-4">hl = cv2.getTrackbarPos('hl', 'hsv_demo')</p>
+                    <p class="ms-4">hu = cv2.getTrackbarPos('hu', 'hsv_demo')</p>
+                    <p class="ms-4">sl = cv2.getTrackbarPos('sl', 'hsv_demo')</p>
+                    <p class="ms-4">su = cv2.getTrackbarPos('su', 'hsv_demo')</p>
+                    <p class="ms-4">vl = cv2.getTrackbarPos('vl', 'hsv_demo')</p>
+                    <p class="ms-4">vu = cv2.getTrackbarPos('vu', 'hsv_demo')</p>
+                    <p class="text-primary ms-4"># 色彩空間轉換: 圖片由BGR轉成HSV</p>
+                    <p class="ms-4">hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)</p>
+                    <p class="text-primary ms-4"># 取得想要的HSV顏色範圍</p>
+                    <p class="text-primary ms-4"># hl為HSV的H的最低值，hu為HSV的H的最高值</p>
+                    <p class="ms-4">lower = np.array([hl, sl, vl])</p>
+                    <p class="ms-4">upper = np.array([hu, su, vu])</p>
+                    <p class="text-primary ms-4"># 二值化處理(變黑白)</p>
+                    <p class="ms-4">binary = cv2.inRange(hsv, lower, upper)</p>
+                    <p class="text-primary ms-4"># 位元運算處理(原圖與遮罩相疊)</p>
+                    <p class="ms-4">bitwise_and = cv2.bitwise_and(image, image, mask=binary)</p>
+                    <p class="ms-4">cv2.imshow('hsv_demo', bitwise_and)</p>
+                    <p class="text-primary ms-4"># 按下q鍵會結束while迴圈</p>
+                    <p class="ms-4">if cv2.waitKey(1) & 0xFF == ord("q"):</p>
+                    <p class="ms-4"><span class="ms-4">break</span></p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">想修改的圖:</p>
+                    <img src="{% static 'image/b1.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">建立拉桿與顯示即時結果:</p>
+                    <img src="{% static 'image/b2.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">找出黃色部分(需手動):</p>
+                    <img src="{% static 'image/b3.png' %}" width="400", height="400">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12 border border-secondary">
+                    <h3 class="text-danger mt-2">把剛剛得到的HSV各個的最大值與最小值帶入</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p>image = cv2.imread("balloon.jpg")</p>
+                    <p>cv2.namedWindow('hsv_demo', cv2.WINDOW_NORMAL)</p>
+                    <p>hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)</p>
+                    <p class="text-primary"># 剛剛得到hl=13, sl=85, vl=0</p>
+                    <p>lower = np.array([13, 85, 0])</p>
+                    <p class="text-primary"># 剛剛得到hu=30, su=255, vu=255</p>
+                    <p>upper = np.array([30, 255, 255])</p>
+                    <p>binary = cv2.inRange(hsv, lower, upper)</p>
+                    <p>mask = cv2.bitwise_and(image, image, mask=binary)</p>
+                    <p>count = 0</p>
+                    <p class="text-primary"># mask.shape=(512, 768, 3) 圖片:高度=512, 寬度=768, 色採通道=3</p>
+                    <p class="text-primary"># len(mask)=512 為圖片高度=512</p>
+                    <p class="text-primary"># len(mask[0])=768 為圖片寬度=768</p>
+                    <p>for i in range(len(mask)):</p>
+                    <p class="ms-4">for j in range(len(mask[0])):</p>
+                    <p class="text-primary ms-4"><span class="ms-4"># mask[i, j, 0]為圖片中每一個像素點的HSV的H</span></p>
+                    <p class="text-primary ms-4"><span class="ms-4"># mask[i, j, 1]為圖片中每一個像素點的HSV的S</span></p>
+                    <p class="text-primary ms-4"><span class="ms-4"># mask[i, j, 2]為圖片中每一個像素點的HSV的V</span></p>
+                    <p class="text-primary ms-4"><span class="ms-4"># 因為遮罩(mask)不是黃色就是黑色，在HSV裡黑色為(0, 0, 0)，
+                    所以只要有在HSV其中一個不為0的地方就是我們所選的黃色部分</span></p>
+                    <p class="ms-4"><span class="ms-4">if (mask[i, j, 0] != 0 or mask[i, j, 1] != 0 or mask[i, j, 2] != 0):</span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4">count += 1</span></span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4 text-primary"># 把hsv[轉成HSV的原圖裡面的H(彩度)]，改成0就會變成紅色的</span></span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4 text-primary"># 紅色的HSV=(0, 240 ,100) ~ (0, 255 ,255)</span></span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4">hsv[i, j, 0] = 0</span></span></p>
+                    <p>print(count) <span class="text-primary ms-2"># 共61737個點被修改</span></p>
+                    <p class="text-primary"># 輸出圖片時記得要轉回BGR</p>
+                    <p>output = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)</p>
+                    <p>cv2.imshow('image', image)</p>
+                    <p>cv2.imshow('mask', mask)</p>
+                    <p>cv2.imshow('output', output)</p>
+                    <p>cv2.waitKey(0)</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">binary(原圖轉HSV後做cv2.inRange()二質化):</p>
+                    <img src="{% static 'image/b4.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/b1.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">mask(原圖與binary相疊，做位元運算處理):</p>
+                    <img src="{% static 'image/b5.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">修改後的圖片(黃色部分變紅色):</p>
+                    <img src="{% static 'image/b6.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">也可以修改(黃色部分變藍色):</p>
+                    <img src="{% static 'image/b7.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">也可以修改(黃色部分變綠色):</p>
+                    <img src="{% static 'image/b8.png' %}" width="400", height="400">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">放大圖片中小小兵的黃色亮度1.5倍</span></h3>
+                <div class="col-md-12 border border-secondary">
+                    <h3 class="text-danger mt-2">把黃色的明度(HSV的V)放大1.5倍</h3>
+                    <p class="text-primary"># 修改迴圈內部即可</p>
+                    <p>for i in range(len(mask)):</p>
+                    <p class="ms-4">for j in range(len(mask[0])):</p>
+                    <p class="ms-4"><span class="ms-4">if (mask[i, j, 0] != 0 or mask[i, j, 1] != 0 or mask[i, j, 2] != 0):</span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4">count += 1</span></span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4 text-primary"># 如果明度*1.5會大於255就會強制等於255(因為明度最大值為255)</span></span></p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4">if hsv[i, j, 2] * 1.5 > 255:</span></span></p>
+                    <p style="margin-left: 100px;">hsv[i, j, 2] = 255</p>
+                    <p class="ms-4"><span class="ms-4"><span class="ms-4">else:</span></span></p>
+                    <p style="margin-left: 100px;">hsv[i, j, 2] *= 1.5</p>
+                    <p>print(count) <span class="text-primary ms-2"># 共61737個點被修改</span></p>
+                    <p class="text-primary"># 輸出圖片時記得要轉回BGR</p>
+                    <p>output = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)</p>
+                    <p>cv2.imshow('image', image)</p>
+                    <p>cv2.imshow('mask', mask)</p>
+                    <p>cv2.imshow('output', output)</p>
+                    <p>cv2.waitKey(0)</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/b1.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">修改後的圖片(黃色部分變亮):</p>
+                    <img src="{% static 'image/b9.png' %}" width="400", height="400">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}
