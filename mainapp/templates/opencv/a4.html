@@ -54,18 +54,18 @@
                     <p class="ms-4">cv2.imshow("HoughLines", image)</p>
                     <p class="ms-4">cv2.waitKey(0)</p>
                     <p>except TypeError:</p>
-                    <p class="ms-4">print("The Houghlines function returns None, try decrease the threshold!")</p>
+                    <p class="ms-4">print("找不到Houghlines，請新增門檻值(threshold)")</p>
                     <p>cv2.destroyAllWindows()</p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4">
                     <p class="my-2 text-success">原圖:</p>
-                    <img src="{% static 'image/d1.png' %}" width="400", height="400">
+                    <img src="{% static 'image/a41.png' %}" width="400", height="400">
                 </div>
                 <div class="col-md-4">
                     <p class="my-2 text-success">直線(為edges裡的第一條無窮線):</p>
-                    <img src="{% static 'image/d2.png' %}" width="400", height="400">
+                    <img src="{% static 'image/a42.png' %}" width="400", height="400">
                 </div>
             </div>
 
@@ -104,22 +104,120 @@
                     <p class="ms-4"><span class="ms-4">cv2.imshow("HoughLinesP", image)</span></p>
                     <p class="ms-4"><span class="ms-4">cv2.waitKey(0)</span></p>
                     <p>except TypeError:</p>
-                    <p class="ms-4">print("The Houghlines function returns None, try decrease the threshold!")</p>
+                    <p class="ms-4">print("找不到Houghlines，請新增門檻值(threshold)")</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/a41.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">線段(為edges裡的第一條線段):</p>
+                    <img src="{% static 'image/a43.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">畫出每個線段，共28條(按Enter會一直畫):</p>
+                    <img src="{% static 'image/a44.png' %}" width="400", height="400">
+                </div>
+            </div>
+
+            <!-- 實作 -->
+            <div class="row mt-3">
+                <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">實作(找出水表的指針角度)</span></h3>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">建立拉桿與顯示需要的HSV和邊緣偵測門檻值範圍</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p class="text-primary"># 建立兩個名稱為 'hsv_demo','canny_demo' 的可拉伸的視窗</p>
+                    <p>cv2.namedWindow('hsv_demo', cv2.WINDOW_NORMAL)</p>
+                    <p>cv2.namedWindow('canny_demo', cv2.WINDOW_NORMAL)</p>
+                    <p class="text-primary"># cv2.createTrackbar()最後一個參數為: 每次滑動搖桿都會觸發的函式(在這邊設定為pass，不做任何事)</p>
+                    <p>def nothing(x):</p>
+                    <p class="ms-4">pass</p>
+                    <p class="text-primary"># 建立<span class="text-danger">HSV</span>拉桿與顯示即時結果</p>
+                    <p>cv2.createTrackbar('hl', 'hsv_demo', 0, 179, nothing)</p>
+                    <p>cv2.createTrackbar('hu', 'hsv_demo', 179, 179, nothing)</p>
+                    <p>cv2.createTrackbar('sl', 'hsv_demo', 0, 255, nothing)</p>
+                    <p>cv2.createTrackbar('su', 'hsv_demo', 255, 255, nothing)</p>
+                    <p>cv2.createTrackbar('vl', 'hsv_demo', 0, 255, nothing)</p>
+                    <p>cv2.createTrackbar('vu', 'hsv_demo', 255, 255, nothing)</p>
+                    <p class="text-primary"># 建立<span class="text-danger">邊緣偵測門檻值</span>拉桿與顯示即時結果</p>
+                    <p>cv2.createTrackbar('threshold', 'canny_demo', 0, 100, nothing)</p>
+                    <p>cv2.createTrackbar('increase_ratio', 'canny_demo', 0, 5, nothing)</p>
+                    <p>image = cv2.imread("wm3.jpg")</p>
+                    <p>while True:</p>
+                    <p class="ms-4">hl = cv2.getTrackbarPos('hl', 'hsv_demo')</p>
+                    <p class="ms-4">hu = cv2.getTrackbarPos('hu', 'hsv_demo')</p>
+                    <p class="ms-4">sl = cv2.getTrackbarPos('sl', 'hsv_demo')</p>
+                    <p class="ms-4">su = cv2.getTrackbarPos('su', 'hsv_demo')</p>
+                    <p class="ms-4">vl = cv2.getTrackbarPos('vl', 'hsv_demo')</p>
+                    <p class="ms-4">vu = cv2.getTrackbarPos('vu', 'hsv_demo')</p>
+                    <p class="ms-4">hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)</p>
+                    <p class="ms-4">lower = np.array([hl, sl, vl])</p>
+                    <p class="ms-4">upper = np.array([hu, su, vu])</p>
+                    <p class="ms-4">binary = cv2.inRange(hsv, lower, upper)</p>
+                    <p class="ms-4">bitwise_and = cv2.bitwise_and(image, image, mask=binary)</p>
+                    <p class="ms-4">cv2.imshow("hsv_demo", result)</p>
+
+                    <p class="ms-4 text-primary"># 抓取邊緣</p>
+                    <p class="ms-4">threshold = cv2.getTrackbarPos('threshold', 'canny_demo')</p>
+                    <p class="ms-4">ratio = cv2.getTrackbarPos('increase_ratio', 'canny_demo')</p>
+                    <p class="ms-4 text-primary"># 把紅色箭頭的遮罩轉成灰階</p>
+                    <p class="ms-4">gray = cv2.cvtColor(bitwise_and, cv2.COLOR_RGB2GRAY)</p>
+                    <p class="ms-4">h, w = gray.shape</p>
+                    <p class="ms-4">blur = cv2.GaussianBlur(gray, (5, 5), 0)</p>
+                    <p class="ms-4">edges = cv2.Canny(blur, threshold, threshold * ratio)</p>
+                    <p class="ms-4">cv2.imshow("canny_demo", edges)</p>
+                    <p class="ms-4">newImage = image.copy()</p>
+                    <p class="ms-4">try:</p>
+                    <p style="margin-left: 50px;" class="text-primary"># 門檻值不能設太低(太低會抓到許多用不到的線段)</p>
+                    <p style="margin-left: 50px;" class="text-primary"># # 一開始不知門檻值如何定義，要慢慢試，50太低，會偵測到太多邊緣，80很ok</p>
+                    <p style="margin-left: 50px;">plines = cv2.HoughLines(edges, 1, np.pi/180, 80)</p>
+                    <p style="margin-left: 50px;">for lines in plines:</p>
+                    <p style="margin-left: 75px;">for (rho, theta) in lines:</p>
+                    <p style="margin-left: 100px;">x0 = np.cos(theta)*rho</p>
+                    <p style="margin-left: 100px;">y0 = np.sin(theta)*rho</p>
+                    <p style="margin-left: 100px;">pt1 = (int(x0 + (h+w)*(-np.sin(theta))), int(y0 + (h+w)*np.cos(theta)))</p>
+                    <p style="margin-left: 100px;">pt2 = (int(x0 - (h+w)*(-np.sin(theta))), int(y0 - (h+w)*np.cos(theta)))o</p>
+                    <p style="margin-left: 100px;" class="text-primary"># 畫線</p>
+                    <p style="margin-left: 100px;">cv2.line(newImage, pt1, pt2, (0, 0, 255), 3)</p>
+                    <p style="margin-left: 50px;" class="text-primary"># cal 沒有值or等於0，會跑except</p>
+                    <p style="margin-left: 50px;">cal = (math.atan((pt2[1]-pt1[1])/(pt2[0]-pt1[0]))*180) % 360</p>
+                    <p style="margin-left: 50px;">cv2.imshow("HoughLines", newImage)</p>
+                    <p style="margin-left: 50px;">if cv2.waitKey(1) == ord("q"):</p>
+                    <p style="margin-left: 75px;">cv2.imwrite("water_meter.png", newImage)</p>
+                    <p style="margin-left: 75px;">break</p>
+                    <p class="ms-4">except:</p>
+                    <p style="margin-left: 50px;">print("找不到Houghlines，請新增門檻值(threshold)")</p>
                     <p>cv2.destroyAllWindows()</p>
                 </div>
             </div>
             <div class="row mb-5">
                 <div class="col-md-4">
                     <p class="my-2 text-success">原圖:</p>
-                    <img src="{% static 'image/d1.png' %}" width="400", height="400">
+                    <img src="{% static 'image/a45.png' %}" width="400", height="400">
                 </div>
                 <div class="col-md-4">
-                    <p class="my-2 text-success">線段(為edges裡的第一條線段):</p>
-                    <img src="{% static 'image/d3.png' %}" width="400", height="400">
+                    <p class="my-2 text-success">建立拉桿與找尋需要的HSV:</p>
+                    <img src="{% static 'image/a46.png' %}" width="400", height="400">
                 </div>
                 <div class="col-md-4">
-                    <p class="my-2 text-success">畫出每個線段，共28條(按Enter會一直畫):</p>
-                    <img src="{% static 'image/d4.png' %}" width="400", height="400">
+                    <p class="my-2 text-success">找出紅色的HSV範圍(hl:103 sl:104 vl:136):</p>
+                    <img src="{% static 'image/a47.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">建立拉桿與找尋需要的下門檻值(邊緣檢測):</p>
+                    <img src="{% static 'image/a48.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">找出下門檻值(31)，increase_ratio(3):</p>
+                    <img src="{% static 'image/a49.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">用HoughLines會畫出線(門檻值超過80的線):</p>
+                    <img src="{% static 'image/a410.png' %}" width="400", height="400">
                 </div>
             </div>
         </div>

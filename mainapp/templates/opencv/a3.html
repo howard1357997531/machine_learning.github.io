@@ -15,14 +15,59 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="text-center text-warning mt-5 mb-4">邊緣偵測</h1>
+            <h1 class="text-center text-warning mt-5 mb-4">侵蝕、膨脹、邊緣偵測</h1>
             <hr>
         </div>
+
+        <!-- 侵蝕、膨脹 -->
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-12 border border-secondary">
-                    <h3 class="text-danger mt-2">建立拉桿來即時更新門檻值</h3>
-                    <p class="text-primary"># Edge detection 是為了找出灰階有劇烈變化的邊界</p>
+                    <h3 class="text-danger mt-2">侵蝕、膨脹</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p>image = cv2.imread("lena512rgb.png")</p>
+                    <p class="text-primary"># 侵蝕、膨脹之前會先轉灰階再做二質化</p>
+                    <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                    <p>_, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)</p>
+                    <p>cv2.imshow("binary", binary)</p>
+                    <p class="text-primary"># 侵蝕、膨脹強度，通常以奇數矩形為結構元素 (3x3, 5x5, 7x7...), 預設為 3x3</p>
+                    <p>kernel = np.ones((3, 3), np.uint8)</p>
+                    <p class="text-primary"># 侵蝕就是把白色削掉(1)</p>
+                    <p>erode = cv2.erode(binary, kernel, iterations=1)</p>
+                    <p>cv2.imshow("erode", erode)</p>
+                    <p class="text-primary"># 膨脹就是把黑色削掉(0)，把白色(1)膨脹出去</p>
+                    <p>dilate = cv2.dilate(binary, kernel, iterations=1)</p>
+                    <p>cv2.imshow("dilate", dilate)</p>
+                    <p>cv2.waitKey(0)</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖(二質化後):</p>
+                    <img src="{% static 'image/a31.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">侵蝕:</p>
+                    <img src="{% static 'image/a32.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">膨脹:</p>
+                    <img src="{% static 'image/a33.png' %}" width="400", height="400">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="row mt-3">
+                <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">邊緣偵測(有三種:Canny, Laplacian, Sobel)</span></h3>
+                <div class="col-md-12 border border-secondary  mt-2">
+                    <h3 class="text-danger mt-2">Canny</h3>
+                    <p class="text-primary"># Canny的使用相當簡單，傳入影像參數並指定兩個門檻參數threshold1與threshold2</p>
+                    <p class="text-primary"># 意思是，圖形的任一點像素，若其值大於threshold2，則認定它屬於邊緣像素，若小於threshold1則不為邊緣像素</p>
+                    <p class="text-primary"># 介於兩者之間則由程式依其像素強度值運算後決定</p>
+                    <p class="text-primary"># 邊緣偵測(Edge detection)，是為了找出灰階有劇烈變化的邊界</p>
                     <p>import cv2</p>
                     <p>image = cv2.imread("lena512rgb.png")</p>
                     <p>cv2.namedWindow('canny')</p>
@@ -47,20 +92,105 @@
                     <p class="ms-4">if cv2.waitKey(1) & 0xFF == ord("q"):</p>
                     <p class="ms-4"><span class="ms-4">break</span></p>
                     <p>cv2.destroyAllWindows()</p>
+                    <p class="text-danger">補充# 在PyImageSearch Gurus Course中，提出了一個好用的方法：</p>
+                    <p class="text-primary"># PyImageSearch是利用np.median找出圖片中所有像素值的中位數，傳入的Sigma的值可自訂</p>
+                    <p class="text-primary"># 預設是0.33，這是PyImageSearch經驗所推薦的預設值(此Sigma值愈大則範圍愈寬)。試用果然效果不錯</p>
+                    <p class="text-primary"># 不用再去煩惱T_upper , T_lower這兩個參數的值了</p>
+                    <p>def auto_canny(image, sigma=0.33):</p>
+                    <p class="ms-4">v = np.median(image)</p>
+                    <p class="ms-4">lower = int(max(0, (1.0 - sigma) * v))</p>
+                    <p class="ms-4">upper = int(min(255, (1.0 + sigma) * v))</p>
+                    <p class="ms-4">edged = cv2.Canny(image, lower, upper)</p>
+                    <p class="ms-4">return edged</p>
+                    <p class="text-primary"># 只要輸入圖片(要先做灰階再做高斯模糊處理)，就可以自動得到最佳門檻值</p>
+                    <p>auto_canny = auto_canny(blur)</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/a34.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">建立拉桿與測試: (上門檻值:37*3，下門檻值:37)</p>
+                    <img src="{% static 'image/a35.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">輸出圖片:</p>
+                    <img src="{% static 'image/a36.png' %}" width="400", height="400">
+                </div>
+            </div>
+        </div>
+
+        <!-- Laplacian 拉普拉斯 -->
+        <div class="col-md-12">
+            <div class="row mt-3">
+                <div class="col-md-12 border border-secondary  mt-2">
+                    <h3 class="text-danger mt-2">Laplacian 拉普拉斯</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p>image = cv2.imread("lena512rgb.png")</p>
+                    <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                    <p class="text-primary"># 使用Laplacian(拉普拉斯算符)找出邊緣。注意使用此函數除了傳入灰階影像之外，亦須指定輸出的影像浮點格式CV_64F</p>
+                    <p class="text-primary"># 為什麼是使用64bits而非灰階的8bits呢？因為Laplacian過程需進行black-to-white及white-to-black兩種轉換</p>
+                    <p class="text-primary"># 在微分的梯度計算(gradient)中black-to-white屬於正向的運算而white-to-black則是負向</p>
+                    <p class="text-primary"># 灰階的8bits格式僅能儲存0-255的正值，因此必須使用64bits。注意在接下來須取其絕對值並轉為8bit的灰階資訊</p>
+                    <p class="text-primary"># 這是一般在運行Laplacian運算時所建議的方法，此方式可保留所有的邊緣資訊：先轉出為64bit，再取絕對值轉為8bit</p>
+                    <p>lap = cv2.Laplacian(gray, cv2.CV_64F)</p>
+                    <p>lap = np.uint8(np.absolute(lap))</p>
+                    <p>cv2.imshow("Laplacian", lap)</p>
+                    <p>cv2.waitKey(0)</p>
+                    <p>cv2.destroyAllWindows()</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="my-2 text-success">原圖:</p>
+                    <img src="{% static 'image/a34.png' %}" width="400", height="400">
+                </div>
+                <div class="col-md-4">
+                    <p class="my-2 text-success">拉普拉斯(Laplacian):</p>
+                    <img src="{% static 'image/a37.png' %}" width="400", height="400">
+                </div>
+            </div>
+        </div>
+
+        <!-- Sobel 索伯 -->
+        <div class="col-md-12">
+            <div class="row mt-3">
+                <div class="col-md-12 border border-secondary  mt-2">
+                    <h3 class="text-danger mt-2">Sobel 索伯</h3>
+                    <p>import cv2</p>
+                    <p>import numpy as np</p>
+                    <p>image = cv2.imread("lena512rgb.png")</p>
+                    <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                    <p class="text-primary"># Sobel，它可以單獨針對X軸、Y軸或X與Y軸抓取其邊緣</p>
+                    <p class="text-primary"># 指令是Sobel，第一個參數是灰階圖像，接下來是輸出的資料形態</p>
+                    <p class="text-primary"># 與Laplacian相同，一樣設定為浮點資料格式CV_64F，最後是指定要針對X軸、Y軸或X+Y軸運算</p>
+                    <p>sobelX = cv2.Sobel(gray, cv2.CV_64F, 1, 0)</p>
+                    <p>sobelY = cv2.Sobel(gray, cv2.CV_64F, 0, 1)</p>
+                    <p>sobelX = np.uint8(np.absolute(sobelX))</p>
+                    <p>sobelY = np.uint8(np.absolute(sobelY))</p>
+                    <p>sobelCombined = cv2.bitwise_or(sobelX, sobelY)</p>
+                    <p>cv2.imshow("sobelX", sobelX)</p>
+                    <p>cv2.imshow("sobelY", sobelY)</p>
+                    <p>cv2.imshow("sobelCombined", sobelCombined)</p>
+                    <p>cv2.waitKey(0)</p>
+                    <p>cv2.destroyAllWindows()</p>
                 </div>
             </div>
             <div class="row mb-5">
                 <div class="col-md-4">
-                    <p class="my-2 text-success">原圖:</p>
-                    <img src="{% static 'image/c1.png' %}" width="400", height="400">
+                    <p class="my-2 text-success">Sobel(針對X軸):</p>
+                    <img src="{% static 'image/a38.png' %}" width="400", height="400">
                 </div>
                 <div class="col-md-4">
-                    <p class="my-2 text-success">建立拉桿與測試: (上門檻值:37*3，下門檻值:37)</p>
-                    <img src="{% static 'image/c2.png' %}" width="400", height="400">
+                    <p class="my-2 text-success">Sobel(針對X軸):</p>
+                    <img src="{% static 'image/a39.png' %}" width="400", height="400">
                 </div>
                 <div class="col-md-4">
-                    <p class="my-2 text-success">輸出圖片:</p>
-                    <img src="{% static 'image/c3.png' %}" width="400", height="400">
+                    <p class="my-2 text-success">Sobel(針對X、Y軸):</p>
+                    <img src="{% static 'image/a310.png' %}" width="400", height="400">
                 </div>
             </div>
         </div>
