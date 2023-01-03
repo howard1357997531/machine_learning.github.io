@@ -23,3 +23,15 @@ def a4(request):
 
 def a5(request):
     return render(request, 'opencv/a5.html', locals())
+
+
+def a6(request):
+    return render(request, 'opencv/a6.html', locals())
+
+
+def a7(request):
+    return render(request, 'opencv/a7.html', locals())
+
+
+def a8(request):
+    return render(request, 'opencv/a8.html', locals())

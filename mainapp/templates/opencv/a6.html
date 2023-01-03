@@ -1,0 +1,213 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a6</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">Convex Hull(凸包或凸殼)</h1>
+            <hr>
+        </div>
+
+        <!-- 輪廓 -->
+        <div class="col-md-12">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">尋找輪廓</span></h3>
+            <div class="row">
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">Aspect Ratio</h3>
+                    <p>這個數值不複雜很容易理解，就是「寬／長(高度)」，雖然簡單但這個值可預測物體的某些特性，很明顯的，當Aspect Ratio＜１</p>
+                    <p>表示該物體是細長型或是所謂「高」的，例如在汽車車牌上看到的數字，它們都是細長型，Aspect Ratio小於１。相反的，</p>
+                    <p>車牌本身卻是矮胖型，其Aspect Ratio＞１。</p>
+                    <p>那麼如果Aspect Ratio接近於１呢？它代表了該物件可能是方形或圓形。</p>
+                </div>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">Extent(範圍)</h3>
+                    <p>是指物體本身面積／擬合矩形外框的面積</p>
+                    <p>因此，Extent值對於任何物體來說都會小於１，而且，馬上就會聯想到自己本身就是矩形的物體該值會接近於１，且各種形狀</p>
+                    <p>不同的物體會有不同的Extent值。由於這是個比例值，因此這要視程式中如何定義某個物體的Extent標準而定，且Extent值在物體</p>
+                    <p>辨識中經常被使用。</p>
+                </div>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">Convex Hull(凸包或凸殼)</h3>
+                    <p>可以先想像一條超彈力的橡膠繩，當拿它來捆住一大包大小不同的信封時，這條橡膠繩會圍成一個最小的多邊形而不會</p>
+                    <p>留下任何多餘的間隙，而且它是用最小的面積來圍住所有的信封。</p>
+                    <p>而Convex Hull的定義就是，平面上的X個點所圍成的物體，找出其中的某些點就能以最小面積完整的圈住該物體，</p>
+                    <p>形成一個稱之為Euclidean space(歐幾里德空間)的區域，例如下圖說明：</p>
+                    <img src="{% static 'image/a61.png' %}" height="400" class="w-100">
+                </div>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <img src="{% static 'image/a62.png' %}" height="300" class="w-100">
+                        </div>
+                        <div class="col-md-10">
+                            <p>從Convex Hull可以引申出另一個概念：convexity(突度)，表示一個曲線外突的程度，相反的如果沒有外突，稱它為convexity defect(凸狀缺陷)。</p>
+                            <p>例如以下方的手掌為例，紅色部份是手部的Convex Hull，黑色虛線部份為bulged in(解釋為內凸)而非bulged out(外凸)，</p>
+                            <p>像手部這這類bulged in的圖形稱為具有convexity defects (凸狀缺陷)。而一個方形或圓形物體是沒有Convexity defects的。</p>
+                            <p>因此一個物體是否具有Convexity defects，可用來作為判斷物體類型的重要線索。</p>
+                            <p>Convex Hull和Convexity defects兩種特性在手勢辨識中佔有很重要的份量，依據手掌的</p>
+                            <p>Convexity defects可猜測伸出幾根手指。此外，Convex Hull也應用在物體的Solidity計算中。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">Solidity</h3>
+                    <p>Solidity的計算方式是：物體面積／Convex Hull面積，且Solidity的值永遠不會大於１，因為依據定義，</p>
+                    <p>convex hull 是指完整包圍住物體的最小面積，因此，Solidity只可能接近於１而不會大於１。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分辨井字遊戲中的Ｘ和Ｏ -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">分辨井字遊戲中的Ｘ和Ｏ</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>image = cv2.imread("tictactoe.png")</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p>contours, _ = cv2.findContours(gray.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)</p>
+                <p>for i, c in enumerate(contours):</p>
+                <p class="ms-4 text-primary"># 取得擬合矩形的x,y,w,h值，可用以計算aspect ratio</p>
+                <p class="ms-4">x, y, w, h = cv2.boundingRect(c)</p>
+                <p class="ms-4 text-primary"># 取得contour的面積</p>
+                <p class="ms-4">area = cv2.contourArea(c)</p>
+                <p class="ms-4 text-primary"># 取得該contour的convex hull(convex hull 是指完整包圍住物體的最小面積)</p>
+                <p class="ms-4">hull = cv2.convexHull(c)</p>
+                <p class="ms-4 text-primary"># 接著取得convexHull的面積</p>
+                <p class="ms-4">hullArea = cv2.contourArea(hull)</p>
+                <p class="ms-4">solidity = area / float(hullArea)</p>
+                <p class="ms-4">char = "?"</p>
+                <p class="ms-4 text-primary"># 如果solidity>0.9，則認定為O</p>
+                <p class="ms-4">if solidity > 0.9:</p>
+                <p style="margin-left: 50px;">char = "O"</p>
+                <p class="ms-4 text-primary"># 如果介於0.5與0.9之間，則認定為X</p>
+                <p class="ms-4">elif solidity > 0.5:</p>
+                <p style="margin-left: 50px;">char = "X"</p>
+                <p class="ms-4 text-primary"># 如果是X或O，畫出該Contour，並標示文字</p>
+                <p class="ms-4">if char != "?":</p>
+                <p style="margin-left: 50px;">cv2.drawContours(image, [c], -1, (0, 255, 0), 3)</p>
+                <p style="margin-left: 50px;">cv2.putText(image, char, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.25, (0, 255, 0), 4)</p>
+                <p class="ms-4">print("%s (Contour #%d) — solidity=%.2f" % (char, i + 1, solidity))</p>
+                <p>cv2.imshow("Output", image)</p>
+                <p>cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+                <p class="text-danger">print結果:</p>
+                <p class="text-primary">O (Contour #1) — solidity=0.98</p>
+                <p class="text-primary">X (Contour #2) — solidity=0.60</p>
+                <p class="text-primary">O (Contour #3) — solidity=0.98</p>
+                <p class="text-primary">X (Contour #4) — solidity=0.60</p>
+                <p class="text-primary">X (Contour #5) — solidity=0.60</p>
+                <p class="text-primary">O (Contour #3) — solidity=0.98</p>
+                <p class="text-primary">? (Contour #7) — solidity=0.28<span class="ms-4 text-danger"># ?為solidity小於0.5，無法判定</span></p>
+                <p class="text-danger"># 由此可判斷O的solidity大於0.9，X的solidity介於0.5與0.9之間</p>
+                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a63.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">輸出:</p>
+                <img src="{% static 'image/a64.png' %}" width="400", height="400">
+            </div>
+        </div>
+
+        <!-- 判斷俄羅斯方塊圖形 -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">判斷俄羅斯方塊圖形</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>import numpy as np</p>
+                <p>image = cv2.imread("tetris_blocks.png")</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p class="text-primary"># 因為原圖背景是白色的用 cv2.THRESH_BINARY_INV(反轉遮罩，黑變白)</p>
+                <p class="text-primary"># 門檻值(127, 255)會有部分方塊不會顯示，經調整後設為(225, 255)</p>
+                <p>_, thresh = cv2.threshold(gray, 225, 255, cv2.THRESH_BINARY_INV)</p>
+                <p>cv2.imshow("Original", image)</p>
+                <p>cv2.imshow("Thresh", thresh)</p>
+                <p>(cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)</p>
+                <p>hullImage = np.zeros(gray.shape[:2], dtype="uint8")</p>
+                <p>for (i, c) in enumerate(cnts):</p>
+                <p class="ms-4">area = cv2.contourArea(c)</p>
+                <p class="ms-4">(x, y, w, h) = cv2.boundingRect(c)</p>
+                <p class="text-primary"># 計算aspect ratio，就是「寬／長」</p>
+                <p class="ms-4">aspectRatio = w / float(h)</p>
+                <p class="text-primary"># 計算extent，是指物體本身面積／擬合矩形外框的面積</p>
+                <p class="ms-4">extent = area / float(w * h)</p>
+                <p class="text-primary"># 取得convex hull面積並計算Solidity值</p>
+                <p class="ms-4">hull = cv2.convexHull(c)</p>
+                <p class="ms-4">hullArea = cv2.contourArea(hull)</p>
+                <p class="ms-4">solidity = area / float(hullArea)</p>
+                <p class="text-primary"># 繪製convex hull以及Contour</p>
+                <p class="ms-4">cv2.drawContours(hullImage, [hull], -1, 255, -1)</p>
+                <p class="ms-4">cv2.drawContours(image, [c], -1, (240, 0, 159), 3)</p>
+                <p class="ms-4">shape = ""</p>
+                <p class="ms-4 text-primary"># 如果aspect ratio介於0.98與1.02則確定為正方形</p>
+                <p class="ms-4">if aspectRatio >= 0.98 and aspectRatio <= 1.02:</p>
+                <p style="margin-left: 50px;">shape = "SQUARE"</p>
+                <p class="ms-4 text-primary"># 如果aspectRatio>3（即寬是高的3倍），則確定為長方形</p>
+                <p class="ms-4">elif aspectRatio >= 3.0:</p>
+                <p style="margin-left: 50px;">shape = "RECTANGLE"</p>
+                <p class="ms-4 text-primary"># extent值若小於0.65，則確定為L形</p>
+                <p class="ms-4">elif extent < 0.65:</p>
+                <p style="margin-left: 50px;">shape = "L-PIECE"</p>
+                <p class="ms-4 text-primary"># 如果solidity大於0.8，則確定為Z形</p>
+                <p class="ms-4">elif solidity > 0.80:</p>
+                <p style="margin-left: 50px;">shape = "Z-PIECE"</p>
+                <p class="ms-4 text-primary"># 在該圖形旁顯示形狀名稱</p>
+                <p class="ms-4">cv2.putText(image, shape, (x, y - 10),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (240, 0, 159), 2)</p>
+                <p class="ms-4 text-primary"># 秀出相關的Contour資訊</p>
+                <p class="ms-4">print("Contour #%d — aspect_ratio=%.2f, extent=%.2f, solidity=%.2f" %(i + 1, aspectRatio, extent, solidity))</p>
+                <p class="ms-4 text-primary"># 顯示Convex Hull的圖形及結果</p>
+                <p class="ms-4">cv2.imshow("Convex Hull", hullImage)</p>
+                <p class="ms-4">cv2.imshow("Image", image)</p>
+                <p class="ms-4">cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+                <p class="text-danger">print結果:</p>
+                <p class="text-primary">Contour #1 — aspect_ratio=1.48, extent=0.66, solidity=0.81</p>
+                <p class="text-primary">Contour #2 — aspect_ratio=1.47, extent=0.65, solidity=0.80</p>
+                <p class="text-primary">Contour #3 — aspect_ratio=3.76, extent=0.96, solidity=1.00</p>
+                <p class="text-primary">Contour #4 — aspect_ratio=1.00, extent=0.97, solidity=1.00</p>
+                <p class="text-primary">Contour #5 — aspect_ratio=1.49, extent=0.63, solidity=0.79</p>
+                <p class="text-primary">Contour #6 — aspect_ratio=1.49, extent=0.63, solidity=0.79</p>
+            </div>
+
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a65.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">binary(反轉遮罩):</p>
+                <img src="{% static 'image/a66.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">Convex Hull的圖形:</p>
+                <img src="{% static 'image/a67.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">輸出:</p>
+                <img src="{% static 'image/a68.png' %}" width="400", height="400">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

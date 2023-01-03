@@ -1,0 +1,236 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a7</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">輪廓近似(Contour Approximation)</h1>
+            <hr>
+        </div>
+
+        <!-- cv2.approxPolyDP -->
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">cv2.approxPolyDP</h3>
+                    <div class="row">
+                        <div class="col-md-9">
+                            <p>cv2.approxPolyDP，它是用來計算contour的approximation(輪廓近似)。</p>
+                            什麼是Contour Approximation呢？舉個例子，例如，當打算從圖片中取得其中一個矩形輪廓時，是得到很多的
+                            數值(Numpy格式)來定義這個矩形，不過其實這是相當佔用記憶體和運算資源的，因為只需要取這麼多數值
+                            當中的四個頂點就可以大致重繪出原來的矩形了，同理，任何多邊形其實都可以如法炮製，也就是在構成其
+                            輪廓的眾多點中只取其頂點，如此一來便可大幅增進電腦運算的效率，減少大量電腦運算以及記憶體的耗用。</p>
+                            <p>以下面這張圖片為例，如果想取得手機中的螢幕內容，第一會先取得其Contour再進行後續處理，但其實並
+                            不需要太多的點來定義這個Contour，僅需要其四個頂點就夠了。</p>
+                        </div>
+                        <div class="col-md-3">
+                            <img src="{% static 'image/a71.png' %}" height="200" class="w-100">
+                        </div>
+                    </div>                        
+                </div>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <p>在OpenCV，是利用cv2.approxPolyDP指令來處理Contour Approximation，用法是：</p>
+                    <p class="text-primary">approx = cv2.approxPolyDP(Contour物件, \epsilon (epsilon), 是否為封閉形狀)</p>
+                    <p>上面這個公式中的\epsilon(唸作epsilon)是個神秘數字，它指的是某個相對於該物件周長的數值：當Contour
+                    Approximation演算法在決定Contour的那些點要捨棄那些要保留時，會去參考這個\epsilon 值，當\epsilon 愈大，
+                    愈多的點會被捨棄不用，反之\epsilon 愈小則愈多的點會被保留下來。</p>
+                    <p>\epsilon 值會隨著不同大小形狀的Contour而有不同，實務上建議取Contour周長的1~5%作為其\epsilon值。
+                    為什麼要取周長的1~5%呢？這是一個經驗值，在大部份的情況下當\epsilon 為周長1~5%皆可取得最佳的Contour Approximation。</p>
+                </div>
+                <div class="col-md-12 border border-secondary mt-2">
+                    <p>例如下面Contour Approximation的範例是取Contour周長1%的數值作為其\epsilon 值:</p>
+                    <p class="text-primary"># 第一行先計算出Contour物件c的周長。</p>
+                    <p>peri = cv2.arcLength(c, True)</p>
+                    <p class="text-primary"># 第二行則是取該周長的1%作為\epsilon 值，其回傳的approx變數即是Contour Approximation結果。</p>
+                    <p>approx = cv2.approxPolyDP(c, 0.01 * peri, True)</p>
+                    <p>cv2.approxPolyDP有個相當聰明的特性，若是帶有水平線的圖案例如矩形，它回傳的將只有4個點，因為該四點
+                    即可重構出原有的矩形。但若是不規則的圖案或圓形，那麼回傳值就不固定了，這端視所定義的\epsilon值而定。
+                    記得嗎？\epsilon 值愈大，則Contour Approximation結果的點數愈少，反之則愈多。</p>
+                    <p>因此，利用Contour Approximation就可以判斷該圖形的種類。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 可得到圖形頂點的數目 -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">可得到圖形頂點的數目</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>image = cv2.imread("shape1.png")</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p>cnts, _ = cv2.findContours(gray.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)</p>
+                <p>for c in cnts:</p>
+                <p class="ms-4 text-primary"># 取得此輪廓周常</p>
+                <p class="ms-4">peri = cv2.arcLength(c, True)</p>
+                <p class="ms-4 text-primary"># # 取得此輪廓周長1%為\epsilon 值</p>
+                <p class="ms-4">approx = cv2.approxPolyDP(c, 0.01 * peri, True)</p>
+                <p class="ms-4">print(len(approx)) <span class="text-primary ms-4"># 為此輪廓頂點數</span></p>
+                <p class="ms-4">(x, y, w, h) = cv2.boundingRect(approx)</p>
+                <p class="ms-4">cv2.putText(image, "Vertex:"+str(len(approx)), (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)</p>
+                <p>cv2.imshow("Image", image)</p>
+                <p>cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a72.png' %}" height="250" class="w-100">
+            </div>
+            <div class="col-md-12">
+                <p class="my-2 text-success">輸出:</p>
+                <img src="{% static 'image/a73.png' %}" height="250" class="w-100">
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12 border border-secondary mt-2">
+                <p class="text-primary">不過，如果是有弧度而非直線的圖形呢？比如下方的圖形。</p>
+                <p>得到的結果如下，很明顯的，弧形線條所得到的值並不固定，這是因為一條弧形基本上是由無限多的切點所形成的。</p>
+                <p>因此下圖中擁有弧線最長的圓形，它所計算出點也最多。</p>
+                <p class="text-primary">再來多試幾種情況: 但是改取\epsilon 值為周長的0.5%，由於\epsilon 值變更小了，因此保留的點數會更多。</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a74.png' %}" height="250" class="w-100">
+            </div>
+            <div class="col-md-12">
+                <p class="my-2 text-success">輸出:</p>
+                <img src="{% static 'image/a75.png' %}" height="250" class="w-100">
+            </div>
+            <div class="col-md-12">
+                <p class="my-2 text-success">輸出(改取\epsilon 值為周長的0.5%):</p>
+                <img src="{% static 'image/a76.png' %}" height="250" class="w-100">
+            </div>
+        </div>
+
+        <!-- 找出所有矩形的圖案並且把它們標示出來 -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">找出所有矩形的圖案並且把它們標示出來</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>image = cv2.imread("shapes.png")</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p>cnts, _ = cv2.findContours(gary.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</p>
+                <p>for i, c in enumerate(cnts):</p>
+                <p class="ms-4 text-primary"># 取得該contour的周長，True表示該圖形為封閉圖形</p>
+                <p class="ms-4">peri = cv2.arcLength(c, True)</p>
+                <p class="ms-4">approx = cv2.approxPolyDP(c, 0.01 * peri, True)</p>
+                <p class="ms-4">print(f'第{i+1}個輪廓，有{len(approx)}個頂點')</p>
+                <p class="ms-4 text-primary"># 如果執行完Contour Approximation，其頂點數為4，即可斷定為矩形</p>
+                <p class="ms-4">if len(approx) == 4:</p>
+                <p style="margin-left: 50px;">cv2.drawContours(image, [c], -1, (0, 255, 255), 2)</p>
+                <p style="margin-left: 50px;" class="text-primary"># cv2.boundingRect() 裡面填 c 或 approx都一樣</p>
+                <p style="margin-left: 50px;">(x, y, w, h) = cv2.boundingRect(approx)</p>
+                <p style="margin-left: 50px;">cv2.putText(image, "Rectangle", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)</p>
+                <p class="ms-4">if 4 < len(approx) < 14:</p>
+                <p style="margin-left: 50px;">cv2.drawContours(image, [c], -1, (0, 255, 255), 2)</p>
+                <p style="margin-left: 50px;">(x, y, w, h) = cv2.boundingRect(approx)</p>
+                <p style="margin-left: 50px;">cv2.putText(image, "Ellipse", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)</p>
+                <p class="ms-4">if len(approx) >= 14:</p>
+                <p style="margin-left: 50px;">cv2.drawContours(image, [c], -1, (0, 255, 255), 2)</p>
+                <p style="margin-left: 50px;">(x, y, w, h) = cv2.boundingRect(approx)</p>
+                <p style="margin-left: 50px;">cv2.putText(image, "Circle", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)</p>
+                <p>cv2.destroyAllWindows()</p>
+                <p class="text-danger">print結果:</p>
+                <p class="text-primary">第1個輪廓，有4個頂點</p>
+                <p class="text-primary">第2個輪廓，有4個頂點</p>
+                <p class="text-primary">第3個輪廓，有10個頂點</p>
+                <p class="text-primary">第4個輪廓，有4個頂點</p>
+                <p class="text-primary">第5個輪廓，有4個頂點</p>
+                <p class="text-primary">第6個輪廓，有16個頂點</p>
+                <p class="text-primary">第7個輪廓，有4個頂點</p>
+                <p class="text-primary">第8個輪廓，有4個頂點</p>
+                <p class="text-primary">第9個輪廓，有4個頂點</p>
+                <p class="text-primary">第10個輪廓，有8個頂點</p>
+                <p class="text-primary">第11個輪廓，有11個頂點</p>
+                <p class="text-primary">第12個輪廓，有14個頂點</p>
+                <p class="text-primary">第13個輪廓，有4個頂點</p>
+                <p class="text-danger"># 由此可判斷4個頂點為矩形</p>
+                <p class="text-danger"># 由此可判斷4 < len(approx) < 14個頂點為橢圓</p>
+                <p class="text-danger"># 由此可判斷len(approx) >= 14個頂點為正圓型</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a77.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">輸出:</p>
+                <img src="{% static 'image/a78.png' %}" width="400", height="400">
+            </div>
+        </div>
+
+        <!-- 用Contour Approximation特性在圖中圈選出該發票 -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">用Contour Approximation特性在圖中圈選出該發票</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>image = cv2.imread("invoice.png")</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p>edges = cv2.Canny(gray, 75, 200)</p>
+                <p>cnts, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)</p>
+                <p class="text-primary"># 使用Python sorted指令，將所有Contours依面積大小由大至小排列，並僅取前七個。</p>
+                <p class="text-primary"># cv2.contourArea 計算輪廓的面積</p>
+                <p>cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:7]</p>
+                <p>for index, c in enumerate(cnts):</p>
+                <p class="ms-4">peri = cv2.arcLength(c, True)</p>
+                <p class="ms-4">approx = cv2.approxPolyDP(c, 0.01 * peri, True)</p>
+                <p class="ms-4 text-primary"># 參考用，顯示周長點數以及經Approximation處理後的點數。</p>
+                <p class="ms-4">print("index: {}, original: {}, approx: {}".format(index, len(c), len(approx)))</p>
+                <p class="ms-4">if len(approx) == 4 and index == 0:</p>
+                <p style="margin-left: 50px;">cv2.drawContours(image, [approx], -1, (0, 255, 0), 2)</p>
+                <p>cv2.imshow("Image", image)</p>
+                <p>cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+                <p class="text-danger">print結果:</p>
+                <p class="text-primary">index: 0, original: 492, approx: 4</p>
+                <p class="text-primary">index: 1, original: 6, approx: 6</p>
+                <p class="text-primary">index: 2, original: 4, approx: 4</p>
+                <p class="text-primary">index: 3, original: 4, approx: 4</p>
+                <p class="text-primary">index: 4, original: 5, approx: 5</p>
+                <p class="text-primary">index: 5, original: 6, approx: 6</p>
+                <p class="text-primary">index: 6, original: 5, approx: 5</p>
+                <p class="text-danger"># 取輪廓面積最大的index 0,original: 492</p>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a79.png' %}" height="400" class="w-100">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">edges:</p>
+                <img src="{% static 'image/a710.png' %}" height="400" class="w-100">
+            </div>
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">輸出(畫出所有輪廓):</p>
+                <img src="{% static 'image/a711.png' %}" height="400" class="w-100">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">輸出(畫出最大的輪廓):</p>
+                <img src="{% static 'image/a712.png' %}" height="400" class="w-100">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

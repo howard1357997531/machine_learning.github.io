@@ -1,0 +1,134 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block title %}<title>a8</title>{% endblock title %}
+{% block css %}
+<style>
+    a {
+        text-decoration: none;
+    }
+    p {
+        margin: 0px
+    }
+</style>
+{% endblock css %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center text-warning mt-5 mb-4">人臉辨識</h1>
+            <hr>
+        </div>
+
+        <!-- cv2.approxPolyDP -->
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12 border border-secondary mt-2">
+                    <h3 class="text-danger mt-2">cv2.approxPolyDP</h3>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p>image = cv2.imread('xxx.png')</p>
+                            <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                            <p>faceCascade = cv2.CascadeClassifier(放入人臉辨識特徵檔)</p>
+                            <p>faces = faceCascade.detectMultiScale(</p>
+                            <p class="ms-4">gray,</p>
+                            <p class="ms-4">scaleFactor=1.1,</p>
+                            <p class="ms-4">minNeighbors=5,</p>
+                            <p class="ms-4">minSize=(30, 30),</p>
+                            <p class="ms-4">flags = cv2.CASCADE_SCALE_IMAGE)</p>
+                            <p>可調整的參數:</p>
+                            <p>scaleFactor: 檢測視窗縮放比率</p>
+                            <p>minNeighbors: 檢測區域鄰域內最少包含的檢測出的備選人臉區域 ( 次數 )</p>
+                            <p>minSize: 被檢測物體的最小尺寸</p>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="{% static 'image/a81.png' %}" height="300" class="w-100">
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <p class="my-2 text-success">scaleFactor:</p>
+                            <img src="{% static 'image/a82.png' %}" height="300" class="w-100">
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <p class="my-2 text-success">minNeighbors:</p>
+                            <img src="{% static 'image/a83.png' %}" height="300" class="w-100">
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <p class="my-2 text-success">minSize:</p>
+                            <img src="{% static 'image/a84.png' %}" height="300" class="w-100">
+                        </div>
+                    </div>                        
+                </div>
+            </div>
+        </div>
+
+        <!-- 辨識圖片中的人臉 -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">辨識圖片中的人臉</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>image = cv2.imread('face.jpg')</p>
+                <p class="text-primary"># 人臉辨識的特徵檔 haarcascade_frontalface_default.xml</p>
+                <p>cascPath = 'haarcascade_frontalface_default.xml'</p>
+                <p>faceCascade = cv2.CascadeClassifier(cascPath)</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p>faces = faceCascade.detectMultiScale(</p>
+                <p class="ms-4">gray,</p>
+                <p class="ms-4">scaleFactor=1.1,</p>
+                <p class="ms-4">minNeighbors=5,</p>
+                <p class="ms-4">minSize=(30, 30),</p>
+                <p class="ms-4">flags=cv2.CASCADE_SCALE_IMAGE </p>
+                <p>print("找到 {0} 張臉!".format(len(faces)))<span class="ms-4 text-primary"># 找到 30 張臉!!</span></p>
+                <p>print(faces)<span class="ms-4 text-primary"># [[  55  415   86   86] [ 441  775   72   72]...]</span></p>
+                <p class="text-primary"># faces[0]為第一張照片的[x, y, w, h] x座標 y座標 寬 高</p>
+                <p>for (x, y, w, h) in faces:</p>
+                <p class="ms-4">cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)</p>
+                <p>cv2.namedWindow("image")</p>
+                <p>cv2.resizeWindow("image", 300, 300)</p>
+                <p>cv2.imshow("image", image)</p>
+                <p>cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a85.png' %}" height="400" class="w-100">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">輸出:</p>
+                <img src="{% static 'image/a86.png' %}" height="400" class="w-100">
+            </div>
+        </div>
+
+        <!-- 辨識攝影機中的人臉 -->
+        <div class="row mt-3 mb-5">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">辨識攝影機中的人臉</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>cap = cv2.VideoCapture(0)</p>
+                <p>cascPath = 'haarcascade_frontalface_default.xml'</p>
+                <p>faceCascade = cv2.CascadeClassifier(cascPath)</p>
+                <p>while cap.isOpened():</p>
+                <p class="ms-4">ret, frame = cap.read()</p>
+                <p class="ms-4">gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)</p>
+                <p class="ms-4">faces = faceCascade.detectMultiScale(</p>
+                <p style="margin-left: 50px;">gray,</p>
+                <p style="margin-left: 50px;">scaleFactor=1.1,</p>
+                <p style="margin-left: 50px;">minNeighbors=5,</p>
+                <p style="margin-left: 50px;">minSize=(30, 30),</p>
+                <p style="margin-left: 50px;">flags=cv2.CASCADE_SCALE_IMAGE)</p>
+                <p class="ms-4">for x, y, w, h in faces:</p>
+                <p style="margin-left: 50px;">cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)</p>
+                <p class="ms-4">cv2.imshow('frame', frame)</p>
+                <p class="ms-4">if cv2.waitKey(1) == ord('q'):</p>
+                <p style="margin-left: 50px;">break</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

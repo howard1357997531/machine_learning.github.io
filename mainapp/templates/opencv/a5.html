@@ -15,12 +15,15 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="text-center text-warning mt-5 mb-4">尋找輪廓</h1>
+            <h1 class="text-center text-warning mt-5 mb-4">輪廓、重心、最小同心圓、擬合(矩形、旋轉矩形、橢圓)外框</h1>
             <hr>
         </div>
+
+        <!-- 輪廓 -->
         <div class="col-md-12">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">尋找輪廓</span></h3>
             <div class="row">
-                <div class="col-md-12 border border-secondary">
+                <div class="col-md-12 border border-secondary mt-2">
                     <p>import cv2</p>
                     <p>image = cv2.imread('license1.jpg')</p>
                     <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
@@ -46,7 +49,7 @@
                     <p>cv2.destroyAllWindows()</p>
                 </div>
             </div>
-            <div class="row mb-5">
+            <div class="row">
                 <div class="col-md-4">
                     <p class="my-2 text-success">原圖:</p>
                     <img src="{% static 'image/a51.png' %}" width="400", height="200">
@@ -59,6 +62,124 @@
                     <p class="my-2 text-success">輸出輪廓:</p>
                     <img src="{% static 'image/a53.png' %}" width="400", height="200">
                 </div>
+            </div>
+        </div>
+
+        <!-- 輪廓的重心和最小同心圓 -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">輪廓的重心和最小同心圓</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <p>import cv2</p>
+                <p>image = cv2.imread("moment.jpg")</p>
+                <p>cv2.imshow('original', image)</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p>_, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)</p>
+                <p>contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</p>
+                <p>for cnt in contours:</p>
+                <p class="ms-4 text-primary"># cv2.minEnclosingCircle(cnt)，放入輪廓cnt，可以得到此輪廓的最小封閉圓</p>
+                <p class="ms-4 text-primary"># (x, y) 輪廓的最小封閉圓的圓心</p>
+                <p class="ms-4 text-primary"># radius 輪廓的最小封閉圓的半徑</p>
+                <p class="ms-4">((x, y), radius) = cv2.minEnclosingCircle(cnt)</p>
+                <p class="ms-4">cv2.circle(image, (int(x), int(y)), int(radius), (255, 0, 0), 2)</p>
+                <p class="ms-4">cv2.circle(image, (int(x), int(y)), 3, (255, 0, 0), -1)</p>
+                <p class="ms-4 text-primary"># cv2.moments(cnt)，放入輪廓cnt，可以得到此輪廓的重心</p>
+                <p class="ms-4">M = cv2.moments(cnt)</p>
+                <p class="ms-4 text-primary"># M為一個dict，裡面存放各種資料</p>
+                <p class="ms-4 text-primary"># {'m00': 1264.5, 'm10': 456932.1666666666, 'm01': 382216.8333333333, 'm20': 165266551.75, 'm11': 138114674.29166666, ...}</p>
+                <p class="ms-4">print(M)</p>
+                <p class="ms-4 text-primary"># 取得此輪廓重心的XY軸座標</p>
+                <p class="ms-4">center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))</p>
+                <p class="ms-4">cv2.circle(image, center, 3, (0, 0, 255), -1)</p>
+                <p class="ms-4">cv2.imshow("image", image)</p>
+                <p class="ms-4">cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a54.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">最小封閉圓(藍點為圓心):</p>
+                <img src="{% static 'image/a55.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">重心(紅點為重心):</p>
+                <img src="{% static 'image/a56.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">最小封閉圓和重心:</p>
+                <img src="{% static 'image/a57.png' %}" width="400", height="400">
+            </div>
+        </div>
+
+        <!-- 擬合矩形外框 -->
+        <div class="row mt-3">
+            <h3 class="text-center"><span class="badge rounded-pill text-bg-dark">輪廓的擬合矩形外框、擬合旋轉矩形外框、擬合橢圓外框</span></h3>
+            <div class="col-md-12 border border-secondary mt-2">
+                <h3 class="text-danger mt-2">擬合矩形外框</h3>
+                <p>import cv2</p>
+                <p>image = cv2.imread("contours2.png")</p>
+                <p>gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</p>
+                <p>blur = cv2.GaussianBlur(gray, (11, 11), 0)</p>
+                <p>edges = cv2.Canny(blur, 20, 160)</p>
+                <p>contours, _ = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)</p>
+                <p>for cnt in contours:</p>
+                <p class="ms-4 text-primary"># cv2.boundingRect(cnt)，放入輪廓cnt，可以得到此輪廓的擬合矩形外框</p>
+                <p class="ms-4 text-primary"># 會傳回一組(x, y, w, h)，分別代表左上角的X與Y，以及寬和長</p>
+                <p class="ms-4">(x, y, w, h) = cv2.boundingRect(cnt)</p>
+                <p class="ms-4">cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)</p>
+                <p class="ms-4">cv2.imshow("image", image)</p>
+                <p class="ms-4">cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+
+            <!-- 擬合旋轉矩形外框 -->
+            <div class="col-md-12 border border-secondary mt-2">
+                <h3 class="text-danger mt-2">擬合旋轉矩形外框</h3>
+                <p class="text-primary"># 直接使用cv2.boundingRect並沒有考慮到物體本身的角度。可以使用另一種方法來繪製邊框</p>
+                <p class="text-primary"># 使用到cv2.minAreaRect以及cv2.boxPoints兩個指令</p>
+                <p>for cnt in contours:</p>
+                <p class="ms-4 text-primary"># cv2.minAreaRect會傳回三個值，第一個是旋轉後距形的左上角X,Y值，第二個是寬及高，第三個是旋轉的角度\theta(或視為傾斜角度)</p>
+                <p class="ms-4 text-primary"># 另外，cv2.rectangle無法繪出傾斜的距形，可改為使用cv2.boxPoints，該指令會依據cv2.minAreaRect傳出的(X,Y)、(w,h)以及角度\theta來產生矩形</p>
+                <p class="ms-4">box = cv2.minAreaRect(cnt)</p>
+                <p class="ms-4">box = np.int0(cv2.boxPoints(box))<span class="ms-4 text-primary">int0會省略小數點後方的數字</span></p>
+                <p class="ms-4">cv2.drawContours(image, [box], -1, (0, 255, 0), 2)</p>
+                <p class="ms-4">cv2.imshow("Image", image)</p>
+                <p class="ms-4">cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+
+            <!-- 擬合橢圓外框 -->
+            <div class="col-md-12 border border-secondary mt-2">
+                <h3 class="text-danger mt-2">擬合橢圓外框</h3>
+                <p class="text-primary"># 類似旋轉角度的擬合矩形外框，製作擬合的橢圓外框指令是cv2.fitEllipse，然後使用cv2.ellipse將它繪出來</p>
+                <p>for cnt in contours:</p>
+                <p class="ms-4">ellipse = cv2.fitEllipse(cnt)</p>
+                <p class="ms-4">cv2.ellipse(image, ellipse, (0, 255, 0), 2)<span class="ms-4 text-primary">int0會省略小數點後方的數字</span></p>
+                <p class="ms-4">cv2.imshow("Image", image)</p>
+                <p class="ms-4">cv2.waitKey(0)</p>
+                <p>cv2.destroyAllWindows()</p>
+            </div>
+
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <p class="my-2 text-success">原圖:</p>
+                <img src="{% static 'image/a58.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">擬合矩形外框:</p>
+                <img src="{% static 'image/a59.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">擬合旋轉矩形外框:</p>
+                <img src="{% static 'image/a510.png' %}" width="400", height="400">
+            </div>
+            <div class="col-md-4">
+                <p class="my-2 text-success">擬合橢圓外框:</p>
+                <img src="{% static 'image/a511.png' %}" width="400", height="400">
             </div>
         </div>
     </div>
